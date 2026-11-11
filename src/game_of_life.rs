@@ -190,4 +190,12 @@ mod tests {
         assert_eq!(grid, grid_from(&[(2, 3), (3, 4), (4, 2), (4, 3), (4, 4)]));
     }
 
+    // Catches a next_generation that wraps around the edges (it would also birth (0,10)).
+    // Worked out by hand: (9,10) keeps 2 neighbors, (8,10) gets 3 and is born, the ends
+    // have 1 and die, and the would-be cell below row 9 is off the grid.
+    #[test]
+    fn blinker_on_bottom_row_loses_its_lower_half() {
+        let bottom = grid_from(&[(9, 9), (9, 10), (9, 11)]);
+        assert_eq!(next_generation(&bottom), grid_from(&[(8, 10), (9, 10)]));
+    }
 }
