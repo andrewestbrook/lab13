@@ -1,11 +1,8 @@
 // Game of Life, Weeks 12-13: grid, display, neighbor counts, the rule for one cell,
 // generations, and preset patterns.
-//
-// TODO: remove the next line once every function below is used.
-#![allow(dead_code)]
 
-// TODO: add the imports you need (the pattern and generation prompts use
-// crate::input::read_int; waiting for Enter uses std::io).
+use crate::input::read_int;
+use std::io;
 
 const ROWS: usize = 10;
 const COLS: usize = 20;
@@ -105,21 +102,29 @@ pub fn population(grid: &Grid) -> usize {
     count
 }
 
-// TODO: replace this Week 12 version. New play(): show the pattern menu (1 blinker,
-// 2 block, 3 glider), ask how many generations, then print each generation with its
-// number and population, waiting for Enter between steps.
+// Menu option 6: pick a pattern and a number of generations, then print generation 0
+// through that number, waiting for Enter between steps (not after the last one).
 pub fn play() {
-    let mut grid = new_grid();
-    grid[4][10] = true;
-    grid[5][10] = true;
-    grid[6][10] = true;
-    print_grid(&grid);
-    println!();
-    print_neighbor_counts(&grid);
-    println!();
-    let alive = grid[5][10];
-    let neighbors = count_neighbors(&grid, 5, 10);
-    println!("Center cell next generation: {}", if next_state(alive, neighbors) { "alive" } else { "dead" });
+    println!("1) Blinker  2) Block  3) Glider");
+    let choice = read_int("Which pattern? ", 1, 3);
+    let generations = read_int("How many generations? ", 0, 100);
+    let mut grid = load_pattern(choice);
+    for step in 0..=generations {
+        println!();
+        println!("Generation {}, population {}", step, population(&grid));
+        print_grid(&grid);
+        if step == 0 {
+            println!();
+            println!("Neighbor counts for generation 0:");
+            print_neighbor_counts(&grid);
+        }
+        if step < generations {
+            println!("Press Enter for the next generation.");
+            let mut line = String::new();
+            io::stdin().read_line(&mut line).expect("failed to read input");
+            grid = next_generation(&grid);
+        }
+    }
 }
 
 #[cfg(test)]
